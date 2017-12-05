@@ -41,7 +41,9 @@ int main(int argc, char **argv) {
     vector<int> input_vector;
 
     sem_id = sem_create(key, Num_Sem);
-
+    // check if it is created successfully
+    if(sem_id == -1)
+     cerr << "fail to create semaphore. " << '\n';
 // check the input numbers
     if (argc != 5) {
         cerr << "please input the correct numbers(4) of inputs!" << endl;
@@ -70,10 +72,18 @@ int main(int argc, char **argv) {
     pthread_t producerid[pro_num];
     pthread_t consumerid[con_num];
 // set-up and initialise the semaphores
-    sem_init(sem_id, MUTEX, 1);/* Semaphore mutex to ensure mutual exclusion */
-    sem_init(sem_id, EMPTY, 0); /* Semaphore empty to ensure queue is not empty */
-    sem_init(sem_id, FULL, queue_size);  /* Semaphore full to ensure queue is not full */
-    sem_init(sem_id, OUTPUT, 1);  /* Semaphore to make sure that output will not be conflicted*/
+if(sem_init(sem_id, MUTEX, 1)==-1)
+  cerr << "fail to initialise semaphore" << endl;
+/* Semaphore mutex to ensure mutual exclusion */
+if(sem_init(sem_id, EMPTY, 0)==-1)
+  cerr << "fail to initialise semaphore" << endl;
+/* Semaphore empty to ensure queue is not empty */
+if(sem_init(sem_id, FULL, queue_size)==-1)
+  cerr << "fail to initialise semaphore" << endl;
+ /* Semaphore full to ensure queue is not full */
+if(sem_init(sem_id, OUTPUT, 1)==-1)
+  cerr << "fail to initialise semaphore" << endl;
+/* Semaphore to make sure that output will not be conflicted*/
 
     para_pro producer_para[pro_num];
     int  consumer_para[con_num];
@@ -149,7 +159,7 @@ void *consumer(void *parameter) {
     while (1) {
         if(sem_wait_for_20s(sem_id, EMPTY) == -1)
         {
-	  
+
           cout << "Consumer("<< cons_id <<"): No more jobs left." << endl;
             pthread_exit(0);
         }else {
