@@ -92,22 +92,27 @@ if(sem_init(sem_id, OUTPUT, 1)==-1)
     for (int j = 0; j < pro_num; ++j) {
         producer_para[j].identity_i = j+1; // id start from 1
         producer_para[j].job_n = job_num;
-        pthread_create(&producerid[j], NULL, producer, (void *) &producer_para[j]);
+        if(pthread_create(&producerid[j], NULL, producer, (void *) &producer_para[j]) != 0)
+          cerr<< "pthread create fail" <<endl;
     }
     for (int i = 0; i < con_num; ++i) {
         consumer_para[i] = i+1; // id start from 1
-        pthread_create(&consumerid[i], NULL, consumer, (void *) &consumer_para[i]); // create and execute
+        if(pthread_create(&consumerid[i], NULL, consumer, (void *) &consumer_para[i]) != 0) // create and execute
+          cerr<< "pthread create fail" <<endl;
     }
 
     // join the thread
     for (int k = 0; k < con_num ; ++k) {
-        pthread_join(consumerid[k], NULL);
+        if(pthread_join(consumerid[k], NULL) != 0)
+          cerr<< "pthread join fail" << endl;
     }
     for (int l = 0; l < pro_num ; ++l) {
-        pthread_join(producerid[l], NULL);
+        if(pthread_join(producerid[l], NULL) != 0)
+         cerr<< "pthread join fail" << endl;
     }
 
-    sem_close(sem_id);
+    if(sem_close(sem_id) == -1)
+      cerr << "close semaphore fail" << endl;
     return 0;
 }
 
@@ -187,8 +192,5 @@ void *consumer(void *parameter) {
           sem_signal(sem_id, OUTPUT);
             }
       }
-
-
         pthread_exit(0);
-
 }
